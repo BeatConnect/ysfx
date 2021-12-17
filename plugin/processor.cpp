@@ -85,7 +85,8 @@ YsfxProcessor::YsfxProcessor()
     : AudioProcessor(BusesProperties()
                      .withInput("Input", juce::AudioChannelSet::stereo(), true)
                      .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-    m_impl(new Impl)
+    m_impl(new Impl),
+    bcConnection(*this)
 {
     m_impl->m_self = this;
 
@@ -232,7 +233,12 @@ bool YsfxProcessor::supportsDoublePrecisionProcessing() const
 //==============================================================================
 juce::AudioProcessorEditor *YsfxProcessor::createEditor()
 {
-    return new YsfxEditor(*this);
+    YsfxEditor* e = new YsfxEditor(*this);
+    if (bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
+    {
+        bcConnection.send("receive_script~");
+    }
+    return e;
 }
 
 bool YsfxProcessor::hasEditor() const
@@ -279,17 +285,27 @@ int YsfxProcessor::getCurrentProgram()
 
 void YsfxProcessor::setCurrentProgram(int index)
 {
+
+
+    actionBroadcaster.sendActionMessage("test");
+
     (void)index;
 }
 
 const juce::String YsfxProcessor::getProgramName(int index)
 {
-    (void)index;
-    return {};
+    return String(index);
+}
+
+void YsfxProcessor::setCurrentProgramStateInformation(const void* data, int sizeInBytes)
+{
+    bool test = false;
 }
 
 void YsfxProcessor::changeProgramName(int index, const juce::String &newName)
 {
+    actionBroadcaster.sendActionMessage(newName);
+
     (void)index;
     (void)newName;
 }

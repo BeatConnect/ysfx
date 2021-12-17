@@ -17,6 +17,7 @@
 
 #pragma once
 #include "info.h"
+#include "../build/bcConnection.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <memory>
 class YsfxParameter;
@@ -56,6 +57,7 @@ public:
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String &newName) override;
+    void setCurrentProgramStateInformation(const void* data, int sizeInBytes) override;
 
     //==========================================================================
     void getStateInformation(juce::MemoryBlock &destData) override;
@@ -64,9 +66,12 @@ public:
     //==========================================================================
     bool isBusesLayoutSupported(const BusesLayout &layout) const override;
 
+    ActionBroadcaster actionBroadcaster;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> m_impl;
+    BcConnection bcConnection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YsfxProcessor)
 };

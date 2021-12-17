@@ -87,7 +87,8 @@ static const int defaultEditorHeight = 600;
 
 YsfxEditor::YsfxEditor(YsfxProcessor &proc)
     : juce::AudioProcessorEditor(proc),
-      m_impl(new Impl)
+      m_impl(new Impl),
+      processor(proc)
 {
     m_impl->m_self = this;
     m_impl->m_proc = &proc;
@@ -104,15 +105,24 @@ YsfxEditor::YsfxEditor(YsfxProcessor &proc)
     m_impl->relayoutUILater();
 
     m_impl->updateInfo();
+
+    proc.actionBroadcaster.addActionListener(this);
 }
 
 YsfxEditor::~YsfxEditor()
 {
+    processor.actionBroadcaster.removeActionListener(this);
 }
 
 void YsfxEditor::resized()
 {
     m_impl->relayoutUILater();
+}
+
+void YsfxEditor::actionListenerCallback(const String& message)
+{
+    File file(message);
+    processor.loadJsfxFile(file.getFullPathName(), nullptr, true);
 }
 
 void YsfxEditor::Impl::grabInfoAndUpdate()
@@ -317,23 +327,23 @@ juce::File YsfxEditor::Impl::getDefaultEffectsDirectory()
 void YsfxEditor::Impl::createUI()
 {
     m_btnLoadFile.reset(new juce::TextButton(TRANS("Load")));
-    m_self->addAndMakeVisible(*m_btnLoadFile);
+  //  m_self->addAndMakeVisible(*m_btnLoadFile);
     m_btnRecentFiles.reset(new juce::TextButton(TRANS("Recent")));
-    m_self->addAndMakeVisible(*m_btnRecentFiles);
+  //  m_self->addAndMakeVisible(*m_btnRecentFiles);
     m_btnEditCode.reset(new juce::TextButton(TRANS("Edit")));
-    m_self->addAndMakeVisible(*m_btnEditCode);
+  //  m_self->addAndMakeVisible(*m_btnEditCode);
     m_btnSwitchEditor.reset(new juce::TextButton(TRANS("Sliders")));
     m_btnSwitchEditor->setClickingTogglesState(true);
-    m_self->addAndMakeVisible(*m_btnSwitchEditor);
+  //  m_self->addAndMakeVisible(*m_btnSwitchEditor);
     m_lblFilePath.reset(new juce::Label);
     m_lblFilePath->setMinimumHorizontalScale(1.0f);
     m_lblFilePath->setJustificationType(juce::Justification::horizontallyCentred);
-    m_self->addAndMakeVisible(*m_lblFilePath);
+  //  m_self->addAndMakeVisible(*m_lblFilePath);
     m_lblIO.reset(new juce::Label);
     m_lblIO->setMinimumHorizontalScale(1.0f);
     m_lblIO->setJustificationType(juce::Justification::horizontallyCentred);
     m_lblIO->setColour(juce::Label::outlineColourId, m_self->findColour(juce::ComboBox::outlineColourId));
-    m_self->addAndMakeVisible(*m_lblIO);
+    //m_self->addAndMakeVisible(*m_lblIO);
     m_centerViewPort.reset(new juce::Viewport);
     m_centerViewPort->setScrollBarsShown(true, false);
     m_self->addAndMakeVisible(*m_centerViewPort);
@@ -396,8 +406,8 @@ void YsfxEditor::Impl::relayoutUI()
     m_lblIO->setBounds(temp.removeFromRight(100));
     temp.removeFromRight(10);
     m_lblFilePath->setBounds(temp);
-
-    m_centerViewPort->setBounds(centerArea);
+    
+    m_centerViewPort->setBounds(bounds);
 
     juce::Component *viewed;
     if (m_btnSwitchEditor->getToggleState()) {

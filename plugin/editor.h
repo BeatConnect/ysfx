@@ -20,15 +20,18 @@
 #include <memory>
 class YsfxProcessor;
 
-class YsfxEditor : public juce::AudioProcessorEditor {
+class YsfxEditor : public juce::AudioProcessorEditor, public juce::ActionListener {
 public:
     explicit YsfxEditor(YsfxProcessor &proc);
     ~YsfxEditor() override;
+
+    void actionListenerCallback(const juce::String& message);
 
 protected:
     void resized() override;
 
 private:
+    YsfxProcessor& processor;
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
