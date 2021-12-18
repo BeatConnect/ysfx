@@ -34,4 +34,5 @@ void BcConnection::messageReceived(const MemoryBlock& message)
     String msg = message.toString();
 
     p.actionBroadcaster.sendActionMessage(msg);
+    disconnect();
 }
