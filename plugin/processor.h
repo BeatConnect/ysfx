@@ -17,7 +17,7 @@
 
 #pragma once
 #include "info.h"
-#include "../build/bcConnection.h"
+#include "bcConnection.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <memory>
 class YsfxParameter;

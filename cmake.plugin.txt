@@ -42,6 +42,8 @@ juce_add_plugin(ysfx_plugin
 
 target_sources(ysfx_plugin
     PRIVATE
+        "plugin/bcConnection.cpp"
+        "plugin/bcConnection.h"
         "plugin/processor.cpp"
         "plugin/processor.h"
         "plugin/editor.cpp"
