@@ -318,7 +318,7 @@ private:
     void handleNewParameterValue() override
     {
         if (!isDragging) {
-            slider.setValue(getParameter().getValue(), juce::dontSendNotification);
+            slider.setValue(getParameter().getValue(), juce::sendNotification);
             updateTextDisplay();
         }
     }
