@@ -15,8 +15,11 @@ void BcConnection::Initialize()
 
 void BcConnection::send(String message)
 {
-    MemoryBlock block(message.getCharPointer(), message.length());
-    sendMessage(block);
+    String m = "send";
+    messageBlock.reset();
+    messageBlock.setSize(m.length());
+    messageBlock.copyFrom(m.getCharPointer(), 0, m.length());
+    sendMessage(messageBlock);
 }
 
 void BcConnection::connectionMade()

@@ -236,7 +236,8 @@ juce::AudioProcessorEditor *YsfxProcessor::createEditor()
     YsfxEditor* e = new YsfxEditor(*this);
     if (bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
     {
-        bcConnection.send("receive_script~");
+        String m = "receive_script";
+        bcConnection.send(m);
     }
     return e;
 }
