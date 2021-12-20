@@ -119,6 +119,16 @@ YsfxProcessor::YsfxProcessor()
 
     ///
     addListener(m_impl.get());
+
+    juce::Timer::callAfterDelay(500, [this]
+    {
+        if (!bcConnection.isConnected() &&
+            bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
+        {
+            String m = "receive_script";
+            bcConnection.send(m);
+        }
+    });
 }
 
 YsfxProcessor::~YsfxProcessor()
@@ -234,11 +244,6 @@ bool YsfxProcessor::supportsDoublePrecisionProcessing() const
 juce::AudioProcessorEditor *YsfxProcessor::createEditor()
 {
     YsfxEditor* e = new YsfxEditor(*this);
-    if (bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
-    {
-        String m = "receive_script";
-        bcConnection.send(m);
-    }
     return e;
 }
 

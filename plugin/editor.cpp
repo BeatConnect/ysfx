@@ -121,8 +121,10 @@ void YsfxEditor::resized()
 
 void YsfxEditor::actionListenerCallback(const String& message)
 {
+    /*
     File file(message);
     processor.loadJsfxFile(file.getFullPathName(), nullptr, true);
+    */
 }
 
 void YsfxEditor::Impl::grabInfoAndUpdate()
