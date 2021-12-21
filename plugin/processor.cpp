@@ -153,7 +153,8 @@ void YsfxProcessor::loadJsfxFile(const juce::String &filePath, ysfx_state_t *ini
     std::atomic_store(&m_impl->m_loadRequest, loadRequest);
     juce::Logger::writeToLog("Inside loadJs gigity 2");
     m_impl->m_background->wakeUp();
-    juce::Logger::writeToLog("async value is: " + juce::String(async));
+    juce::String asyncVal(async ? "1" : "0");
+    juce::Logger::writeToLog("async value is: " + asyncVal);
     if (!async) {
         juce::Logger::writeToLog("Inside the if block");
         std::unique_lock<std::mutex> lock(loadRequest->completionMutex);
