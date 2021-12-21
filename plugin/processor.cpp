@@ -174,6 +174,7 @@ void YsfxProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     AudioProcessorSuspender sus(*this);
     sus.lockCallbacks();
 
+    juce::Logger::writeToLog("Prepare to play, sampleRate: " + juce::String(sampleRate));
     ysfx_t *fx = m_impl->m_fx.get();
     ysfx_set_sample_rate(fx, sampleRate);
     ysfx_set_block_size(fx, (uint32_t)samplesPerBlock);

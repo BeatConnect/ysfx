@@ -90,6 +90,7 @@ YsfxEditor::YsfxEditor(YsfxProcessor &proc)
       m_impl(new Impl),
       processor(proc)
 {
+    juce::Logger::writeToLog("Editor 1`");
     m_impl->m_self = this;
     m_impl->m_proc = &proc;
     m_impl->m_info = proc.getCurrentInfo();
@@ -97,7 +98,7 @@ YsfxEditor::YsfxEditor(YsfxProcessor &proc)
     static YsfxLookAndFeel lnf;
     setLookAndFeel(&lnf);
     juce::LookAndFeel::setDefaultLookAndFeel(&lnf);
-
+    juce::Logger::writeToLog("Editor 2`");
     setSize(defaultEditorWidth, defaultEditorHeight);
     setResizable(true, true);
     m_impl->createUI();
@@ -105,7 +106,7 @@ YsfxEditor::YsfxEditor(YsfxProcessor &proc)
     m_impl->relayoutUILater();
 
     m_impl->updateInfo();
-
+    juce::Logger::writeToLog("Editor end`");
     proc.actionBroadcaster.addActionListener(this);
 }
 
@@ -142,7 +143,7 @@ void YsfxEditor::Impl::updateInfo()
     ysfx_t *fx = info->effect.get();
 
     juce::File filePath{juce::CharPointer_UTF8{ysfx_get_file_path(fx)}};
-
+    juce::Logger::writeToLog("UpdateInfo filepath: `" + filePath.getFullPathName());
     if (filePath != juce::File{}) {
         m_lblFilePath->setText(filePath.getFileName(), juce::dontSendNotification);
         m_lblFilePath->setTooltip(filePath.getFullPathName());
@@ -152,6 +153,7 @@ void YsfxEditor::Impl::updateInfo()
         m_lblFilePath->setTooltip(juce::String{});
     }
 
+    juce::Logger::writeToLog("UpdateInfo 1");
     juce::String ioText;
     uint32_t numInputs = ysfx_get_num_inputs(fx);
     uint32_t numOutputs = ysfx_get_num_inputs(fx);
@@ -165,6 +167,7 @@ void YsfxEditor::Impl::updateInfo()
         ioText = "MIDI";
     m_lblIO->setText(ioText, juce::dontSendNotification);
 
+    juce::Logger::writeToLog("UpdateInfo 2");
     juce::Array<YsfxParameter *> params;
     params.ensureStorageAllocated(ysfx_max_sliders);
     for (uint32_t i = 0; i < ysfx_max_sliders; ++i) {
@@ -176,6 +179,7 @@ void YsfxEditor::Impl::updateInfo()
     m_graphicsView->setEffect(fx);
     m_ideView->setEffect(fx, info->timeStamp);
 
+    juce::Logger::writeToLog("UpdateInfo 3");
     if (!info->errors.isEmpty())
         m_ideView->setStatusText(info->errors.getReference(0));
     else if (!info->warnings.isEmpty())
@@ -183,11 +187,13 @@ void YsfxEditor::Impl::updateInfo()
     else
         m_ideView->setStatusText(TRANS("Compiled OK"));
 
+    juce::Logger::writeToLog("UpdateInfo 4");
     bool hasGfx = ysfx_has_section(fx, ysfx_section_gfx);
     switchEditor(hasGfx);
 
     m_mustResizeToGfx = true;
     relayoutUILater();
+    juce::Logger::writeToLog("UpdateInfo 5");
 }
 
 void YsfxEditor::Impl::chooseFileAndLoad()
