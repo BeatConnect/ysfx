@@ -38,7 +38,8 @@ void BcConnection::messageReceived(const MemoryBlock& message)
     Logger::writeToLog("Message received: " + msg);
 
     File file(msg);
-    p.loadJsfxFile(file.getFullPathName(), nullptr, true);
-    
+    Logger::writeToLog("After Message was received: " + file.getFullPathName());
+    p.loadJsfxFile(file.getFullPathName(), nullptr, false);
+    Logger::writeToLog("Line 43 dooooog ");
     disconnect();
 }

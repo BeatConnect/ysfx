@@ -146,14 +146,19 @@ YsfxParameter *YsfxProcessor::getYsfxParameter(int sliderIndex)
 
 void YsfxProcessor::loadJsfxFile(const juce::String &filePath, ysfx_state_t *initialState, bool async)
 {
+    juce::Logger::writeToLog("Inside loadJs gigity");
     Impl::LoadRequest::Ptr loadRequest{new Impl::LoadRequest};
     loadRequest->filePath = filePath;
     loadRequest->initialState.reset(ysfx_state_dup(initialState));
     std::atomic_store(&m_impl->m_loadRequest, loadRequest);
+    juce::Logger::writeToLog("Inside loadJs gigity 2");
     m_impl->m_background->wakeUp();
+    juce::Logger::writeToLog("async value is: " + juce::String(async));
     if (!async) {
+        juce::Logger::writeToLog("Inside the if block");
         std::unique_lock<std::mutex> lock(loadRequest->completionMutex);
         loadRequest->completionVariable.wait(lock, [&]() { return loadRequest->completion; });
+        juce::Logger::writeToLog("End of the if block");
     }
 }
 
@@ -538,40 +543,52 @@ void YsfxProcessor::Impl::Background::run()
 
 void YsfxProcessor::Impl::Background::processLoadRequest(LoadRequest &req)
 {
+    juce::Logger::writeToLog("Inside process Load Request 1");
     YsfxInfo::Ptr info{new YsfxInfo};
 
     info->timeStamp = juce::Time::getCurrentTime();
 
+    juce::Logger::writeToLog("Inside process Load Request 2");
     ///
     ysfx_config_u config{ysfx_config_new()};
+    juce::Logger::writeToLog("Inside process Load Request 3");
     ysfx_register_builtin_audio_formats(config.get());
+    juce::Logger::writeToLog("Inside process Load Request 4");
     ysfx_guess_file_roots(config.get(), req.filePath.toRawUTF8());
+    juce::Logger::writeToLog("Inside process Load Request 5");
 
     ///
     auto logfn = [](intptr_t userdata, ysfx_log_level level, const char *message) {
         YsfxInfo &data = *(YsfxInfo *)userdata;
+        juce::Logger::writeToLog("Inside process Load Request Log level " + juce::String(level));
         if (level == ysfx_log_error)
             data.errors.add(juce::CharPointer_UTF8(message));
         else if (level == ysfx_log_warning)
             data.warnings.add(juce::CharPointer_UTF8(message));
     };
 
+    juce::Logger::writeToLog("Inside process Load Request 6");
     ysfx_set_log_reporter(config.get(), +logfn);
+    juce::Logger::writeToLog("Inside process Load Request 7");
     ysfx_set_user_data(config.get(), (intptr_t)info.get());
-
+    juce::Logger::writeToLog("Inside process Load Request 8");
     ///
     ysfx_t *fx = ysfx_new(config.get());
+    juce::Logger::writeToLog("Inside process Load Request 9");
     info->effect.reset(fx);
-
+    juce::Logger::writeToLog("Inside process Load Request 10");
     uint32_t loadopts = 0;
     uint32_t compileopts = 0;
     ysfx_load_file(fx, req.filePath.toRawUTF8(), loadopts);
+    juce::Logger::writeToLog("Inside process Load Request 11");
     ysfx_compile(fx, compileopts);
+    juce::Logger::writeToLog("Inside process Load Request 12");
 
     if (req.initialState)
         ysfx_load_state(fx, req.initialState.get());
 
     {
+        juce::Logger::writeToLog("Inside process Load Request 13");
         AudioProcessorSuspender sus{*m_impl->m_self};
         sus.lockCallbacks();
         m_impl->m_fx.reset(fx);
