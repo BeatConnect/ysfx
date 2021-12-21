@@ -88,6 +88,9 @@ YsfxProcessor::YsfxProcessor()
     m_impl(new Impl),
     bcConnection(*this)
 {
+    logger.reset(FileLogger::createDateStampedLogger("BeatConnect/logs", "ysfx-", ".txt", "Please work this time. Pretty please."));
+    Logger::setCurrentLogger(logger.get());
+
     m_impl->m_self = this;
 
     ysfx_config_u config{ysfx_config_new()};
@@ -120,15 +123,8 @@ YsfxProcessor::YsfxProcessor()
     ///
     addListener(m_impl.get());
 
-    juce::Timer::callAfterDelay(500, [this]
-    {
-        if (!bcConnection.isConnected() &&
-            bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
-        {
-            String m = "receive_script";
-            bcConnection.send(m);
-        }
-    });
+    bool success = bcConnection.createPipe("ysfx_bc_process_connection", -1);
+    Logger::writeToLog(success ? "Sucessfully created pipe" : "FAILED to create pipe!");
 }
 
 YsfxProcessor::~YsfxProcessor()

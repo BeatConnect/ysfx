@@ -24,17 +24,18 @@ void BcConnection::send(String message)
 
 void BcConnection::connectionMade()
 {
-    bool test = false;
+    Logger::writeToLog("Connection made!");
 }
 
 void BcConnection::connectionLost()
 {
-    bool test = false;
+    Logger::writeToLog("Connection lost boooooo");
 }
 
 void BcConnection::messageReceived(const MemoryBlock& message)
 {
     String msg = message.toString();
+    Logger::writeToLog("Message received: " + msg);
 
     File file(msg);
     p.loadJsfxFile(file.getFullPathName(), nullptr, true);
