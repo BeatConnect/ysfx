@@ -73,6 +73,7 @@ private:
     std::unique_ptr<Impl> m_impl;
     BcConnection bcConnection;
     std::unique_ptr<juce::FileLogger> logger;
+    int counter = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YsfxProcessor)
 };

@@ -192,15 +192,14 @@ void YsfxProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
     ysfx_t *fx = m_impl->m_fx.get();
     if (fx != nullptr)
     {
-        /*
         uint64_t sliderParametersChanged = m_impl->m_sliderParametersChanged.exchange(0);
         if (sliderParametersChanged) {
             for (int i = 0; i < ysfx_max_sliders; ++i) {
                 if (sliderParametersChanged & ((uint64_t)1 << i))
                     //  juce::Logger::writeToLog("process Block sliderParamChanged");
-                   // m_impl->syncParameterToSlider(i);
+                    m_impl->syncParameterToSlider(i);
             }
-        }*/
+        }
 
         m_impl->updateTimeInfo();
         ysfx_set_time_info(fx, &m_impl->m_timeInfo);
@@ -210,10 +209,24 @@ void YsfxProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
         uint32_t numIns = (uint32_t)getTotalNumInputChannels();
         uint32_t numOuts = (uint32_t)getTotalNumOutputChannels();
         uint32_t numFrames = (uint32_t)buffer.getNumSamples();
-        ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
+
+        if (counter == 0)
+        {
+            ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
+        }
+
+        if (counter > 24000)
+        {
+            ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
+        }
+        else
+        {
+            counter += buffer.getNumSamples();
+        }
 
         m_impl->processMidiOutput(midiMessages);
         m_impl->processSliderChanges();
+
     }
   //  juce::Logger::writeToLog("process Block end");
 }
