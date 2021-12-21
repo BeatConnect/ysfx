@@ -212,10 +212,10 @@ void YsfxProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
 
         if (counter == 0)
         {
-            ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
+            //ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
         }
 
-        if (counter > 24000)
+        if (counter > 12000)
         {
             ysfx_process_float(fx, buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), numIns, numOuts, numFrames);
         }
