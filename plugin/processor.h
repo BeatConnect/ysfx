@@ -72,7 +72,7 @@ private:
     struct Impl;
     std::unique_ptr<Impl> m_impl;
     BcConnection bcConnection;
-    std::unique_ptr<juce::FileLogger> logger;
+    bool requestedLoad = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YsfxProcessor)
 };

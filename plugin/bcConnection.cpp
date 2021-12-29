@@ -7,6 +7,7 @@ BcConnection::BcConnection(YsfxProcessor& proc) : p(proc)
 
 BcConnection::~BcConnection()
 {
+    disconnect();
 }
 
 void BcConnection::Initialize()
@@ -15,29 +16,23 @@ void BcConnection::Initialize()
 
 void BcConnection::send(String message)
 {
-    String m = "send";
     messageBlock.reset();
-    messageBlock.setSize(m.length());
-    messageBlock.copyFrom(m.getCharPointer(), 0, m.length());
+    messageBlock.setSize(message.length());
+    messageBlock.copyFrom(message.getCharPointer(), 0, message.length());
     sendMessage(messageBlock);
 }
 
 void BcConnection::connectionMade()
 {
-    Logger::writeToLog("Connection made!");
 }
 
 void BcConnection::connectionLost()
 {
-    Logger::writeToLog("Connection lost boooooo");
 }
 
 void BcConnection::messageReceived(const MemoryBlock& message)
 {
-    String msg = message.toString();
-    Logger::writeToLog("Message received: " + msg);
-
-    File file(msg);
+    File file(message.toString());
     p.loadJsfxFile(file.getFullPathName(), nullptr, true);
     
     disconnect();

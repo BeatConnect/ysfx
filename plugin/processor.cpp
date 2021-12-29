@@ -85,26 +85,23 @@ YsfxProcessor::YsfxProcessor()
     : AudioProcessor(BusesProperties()
                      .withInput("Input", juce::AudioChannelSet::stereo(), true)
                      .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-    m_impl(new Impl),
-    bcConnection(*this)
+m_impl(new Impl),
+bcConnection(*this)
 {
-    logger.reset(FileLogger::createDateStampedLogger("BeatConnect/logs", "ysfx-", ".txt", "Please work this time. Pretty please."));
-    Logger::setCurrentLogger(logger.get());
-
     m_impl->m_self = this;
 
-    ysfx_config_u config{ysfx_config_new()};
+    ysfx_config_u config{ ysfx_config_new() };
     ysfx_register_builtin_audio_formats(config.get());
 
-    ysfx_t *fx = ysfx_new(config.get());
+    ysfx_t* fx = ysfx_new(config.get());
     m_impl->m_fx.reset(fx);
-    YsfxInfo::Ptr info{new YsfxInfo};
+    YsfxInfo::Ptr info{ new YsfxInfo };
     info->effect.reset(fx);
     ysfx_add_ref(fx);
     std::atomic_store(&m_impl->m_info, info);
 
     ///
-    ysfx_time_info_t &timeInfo = m_impl->m_timeInfo;
+    ysfx_time_info_t& timeInfo = m_impl->m_timeInfo;
     timeInfo.tempo = 120;
     timeInfo.playback_state = ysfx_playback_paused;
     timeInfo.time_position = 0;
@@ -123,8 +120,7 @@ YsfxProcessor::YsfxProcessor()
     ///
     addListener(m_impl.get());
 
-    bool success = bcConnection.createPipe("ysfx_bc_process_connection", -1);
-    Logger::writeToLog(success ? "Sucessfully created pipe" : "FAILED to create pipe!");
+    
 }
 
 YsfxProcessor::~YsfxProcessor()
@@ -135,18 +131,18 @@ YsfxProcessor::~YsfxProcessor()
     m_impl->m_background->shutdown();
 }
 
-YsfxParameter *YsfxProcessor::getYsfxParameter(int sliderIndex)
+YsfxParameter* YsfxProcessor::getYsfxParameter(int sliderIndex)
 {
     if (sliderIndex < 0 || sliderIndex >= ysfx_max_sliders)
         return nullptr;
 
     int paramIndex = sliderIndex + m_impl->m_sliderParamOffset;
-    return static_cast<YsfxParameter *>(getParameters()[paramIndex]);
+    return static_cast<YsfxParameter*>(getParameters()[paramIndex]);
 }
 
-void YsfxProcessor::loadJsfxFile(const juce::String &filePath, ysfx_state_t *initialState, bool async)
+void YsfxProcessor::loadJsfxFile(const juce::String& filePath, ysfx_state_t* initialState, bool async)
 {
-    Impl::LoadRequest::Ptr loadRequest{new Impl::LoadRequest};
+    Impl::LoadRequest::Ptr loadRequest{ new Impl::LoadRequest };
     loadRequest->filePath = filePath;
     loadRequest->initialState.reset(ysfx_state_dup(initialState));
     std::atomic_store(&m_impl->m_loadRequest, loadRequest);
@@ -168,7 +164,7 @@ void YsfxProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     AudioProcessorSuspender sus(*this);
     sus.lockCallbacks();
 
-    ysfx_t *fx = m_impl->m_fx.get();
+    ysfx_t* fx = m_impl->m_fx.get();
     ysfx_set_sample_rate(fx, sampleRate);
     ysfx_set_block_size(fx, (uint32_t)samplesPerBlock);
 
@@ -179,8 +175,24 @@ void YsfxProcessor::releaseResources()
 {
 }
 
-void YsfxProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
+void YsfxProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    if (!requestedLoad)
+    {
+        if (!bcConnection.isConnected())
+        {
+            if (bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
+            {
+                requestedLoad = true;
+                bcConnection.send("request file");
+            }
+            else
+            {
+                bool test = false;
+            }
+        }
+    }
+
     ysfx_t *fx = m_impl->m_fx.get();
 
     uint64_t sliderParametersChanged = m_impl->m_sliderParametersChanged.exchange(0);
