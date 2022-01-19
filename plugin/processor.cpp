@@ -181,7 +181,7 @@ void YsfxProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuf
     {
         if (!bcConnection.isConnected())
         {
-            if (bcConnection.connectToPipe("ysfx_bc_process_connection", -1))
+            if (bcConnection.connectToPipe("bcfx_bc_process_connection", -1))
             {
                 requestedLoad = true;
                 bcConnection.send("request file");
