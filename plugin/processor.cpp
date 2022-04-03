@@ -371,7 +371,17 @@ void YsfxProcessor::setStateInformation(const void *data, int sizeInBytes)
     if ((int)root.getProperty("version") != 1)
         return;
 
-    path = root.getProperty("path").toString();
+    String exe = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getFullPathName();
+    exe = exe.replaceCharacters("\\", "/");
+    int index = exe.indexOf("/plugins");
+    exe = exe.substring(0, index);
+
+    String scriptPath = root.getProperty("path").toString();
+    scriptPath = scriptPath.replaceCharacters("\\", "/");
+    int scriptIndex = scriptPath.indexOf("/plugins");
+    scriptPath = scriptPath.substring(scriptIndex);
+
+    path = exe + scriptPath;
 
     juce::ValueTree stateTree = root.getChildWithName("state");
     if (stateTree != juce::ValueTree{}) {
