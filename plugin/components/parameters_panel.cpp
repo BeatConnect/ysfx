@@ -98,7 +98,7 @@ public:
 private:
     void handleNewParameterValue() override
     {
-        button.setToggleState(isParameterOn(), juce::dontSendNotification);
+        button.setToggleState(isParameterOn(), juce::sendNotification);
     }
 
     void buttonClicked()
@@ -138,7 +138,7 @@ public:
         buttons[1].setConnectedEdges(juce::Button::ConnectedOnLeft);
 
         // Set the initial value.
-        buttons[0].setToggleState(true, juce::dontSendNotification);
+        buttons[0].setToggleState(true, juce::sendNotification);
         handleNewParameterValue();
 
         buttons[1].onStateChange = [this] { rightButtonChanged(); };
@@ -166,8 +166,8 @@ private:
         bool newState = isParameterOn();
 
         if (buttons[1].getToggleState() != newState) {
-            buttons[1].setToggleState(newState, juce::dontSendNotification);
-            buttons[0].setToggleState(!newState, juce::dontSendNotification);
+            buttons[1].setToggleState(newState, juce::sendNotification);
+            buttons[0].setToggleState(!newState, juce::sendNotification);
         }
     }
 
@@ -317,9 +317,14 @@ private:
 
     void handleNewParameterValue() override
     {
-        if (!isDragging) {
-            slider.setValue(getParameter().getValue(), juce::sendNotification);
-            updateTextDisplay();
+        if (!isDragging)
+        {
+            if (getParameter().getValue() != (float)slider.getValue())
+            {
+                getParameter().setValueNotifyingHost(getParameter().getValue());
+                slider.setValue(getParameter().getValue(), juce::dontSendNotification);
+                updateTextDisplay();
+            }
         }
     }
 

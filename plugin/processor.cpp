@@ -461,12 +461,11 @@ void YsfxProcessor::Impl::processSliderChanges()
 
     if ((changed|automated) != 0) {
         for (int i = 0; i < ysfx_max_sliders; ++i) {
-            uint64_t mask = (uint64_t)1 << i;
-
-            if ((changed|automated) & mask) {
-                //NOTE: it should avoid recording an automation point in case of
-                //  `changed` only, but I don't know how to implement this
-                syncSliderToParameter(i);
+            YsfxParameter* param = m_self->getYsfxParameter(i);
+            if (param->existsAsSlider()) {
+                float normValue = param->convertFromYsfxValue(ysfx_slider_get_value(fx, (uint32_t)i));
+                if (param->getValue() != normValue)
+                    param->setValueNotifyingHost(normValue);
             }
         }
     }
