@@ -321,7 +321,7 @@ private:
         {
             if (getParameter().getValue() != (float)slider.getValue())
             {
-                getParameter().setValueNotifyingHost((float)slider.getValue());
+                getParameter().setValueNotifyingHost(getParameter().getValue());
                 slider.setValue(getParameter().getValue(), juce::dontSendNotification);
                 updateTextDisplay();
             }
