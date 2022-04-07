@@ -61,6 +61,7 @@ private:
         }
         else {
             startTimer(juce::jmin(250, getTimerInterval() + 10));
+            handleNewParameterValue();
         }
     }
 
@@ -166,6 +167,7 @@ private:
         bool newState = isParameterOn();
 
         if (buttons[1].getToggleState() != newState) {
+            getParameter().sendValueChangedMessageToListeners(getParameter().getValue());
             buttons[1].setToggleState(newState, juce::sendNotification);
             buttons[0].setToggleState(!newState, juce::sendNotification);
         }
@@ -226,6 +228,13 @@ private:
         int index = -1;
 
         juce::String valueText = getParameter().getCurrentValueAsText();
+        juce::String boxText = box.getText();
+
+        if (!valueText.equalsIgnoreCase(boxText))
+        {
+            bool test = false;
+        }
+
         int enumSize = getParameter().getSliderEnumSize();
 
         for (int i = 0; index == -1 && i < enumSize; ++i) {
@@ -410,7 +419,7 @@ private:
             if (range.max == 1)
                 return std::make_unique<YsfxSwitchParameterComponent>(parameter);
             else
-                return std::make_unique<YsfxChoiceParameterComponent>(parameter);
+                return std::make_unique<YsfxSliderParameterComponent>(parameter);
         }
 
         if (range.min == 0 && range.max == 1 && range.inc == 1)
